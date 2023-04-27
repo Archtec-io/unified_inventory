@@ -47,11 +47,16 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 minetest.register_on_mods_loaded(function()
-       minetest.register_on_joinplayer(function(player)
-               -- After everything is initialized, set up the formspec
-               ui.apply_filter(player, "", "nochange")
-               ui.set_inventory_formspec(player, unified_inventory.default)
-       end)
+    minetest.register_on_joinplayer(function(player)
+		local name = player:get_player_name()
+		minetest.after(1.7, function()
+			local p = minetest.get_player_by_name(name)
+			if p then -- check for valid PlayerRef
+				ui.apply_filter(p, "", "nochange")
+				ui.set_inventory_formspec(p, unified_inventory.default)
+			end
+		end)
+	end)
 end)
 
 local function apply_new_filter(player, search_text, new_dir)
