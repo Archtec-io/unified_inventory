@@ -49,14 +49,22 @@ ui.register_button("home_gui_set", {
 	action = function(player)
 		local player_name = player:get_player_name()
 		if minetest.check_player_privs(player_name, {home=true}) then
-			ui.set_home(player, player:get_pos())
+			local formspec = [[
+				formspec_version[4]
+				size[8,4]
+				label[1,0.5;Are you sure you want to set your new home here?]
+				button[2,1;4,1;yes;Yes, set new home]
+				button_exit[2,2.5;4,1;abort;Abort]
+			]]
+			minetest.show_formspec(player_name, "unified_inventory:set_home", formspec)
+			--[[ui.set_home(player, player:get_pos())
 			local home = ui.home_pos[player_name]
 			if home ~= nil then
 				minetest.sound_play("dingdong",
 						{to_player=player_name, gain = 1.0})
 				minetest.chat_send_player(player_name,
 					S("Home position set to: @1", minetest.pos_to_string(home)))
-			end
+			end]]--
 		else
 			minetest.chat_send_player(player_name,
 				S("You don't have the \"home\" privilege!"))
@@ -67,6 +75,22 @@ ui.register_button("home_gui_set", {
 		return minetest.check_player_privs(player:get_player_name(), {home=true})
 	end,
 })
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname ~= "unified_inventory:set_home" then return end
+	if fields and fields.yes then
+		local player_name = player:get_player_name()
+		ui.set_home(player, player:get_pos())
+		local home = ui.home_pos[player_name]
+		if home ~= nil then
+			minetest.sound_play("dingdong",
+					{to_player=player_name, gain = 1.0})
+			minetest.chat_send_player(player_name,
+				S("Home position set to: @1", minetest.pos_to_string(home)))
+		end
+		minetest.close_formspec(player_name, "unified_inventory:set_home")
+	end
+end)
 
 ui.register_button("home_gui_go", {
 	type = "image",
@@ -320,7 +344,7 @@ ui.register_page("craftguide", {
 		local has_give = player_privs.give or ui.is_creative(player_name)
 
 		formspec[n] = string.format("image[%f,%f;%f,%f;ui_crafting_arrow.png]",
-	                            craftguidearrowx, craftguidey, ui.imgscale, ui.imgscale)
+								craftguidearrowx, craftguidey, ui.imgscale, ui.imgscale)
 
 		formspec[n+1] = string.format("textarea[%f,%f;10,1;;%s: %s;]",
 				perplayer_formspec.craft_guide_resultstr_x, perplayer_formspec.craft_guide_resultstr_y,
