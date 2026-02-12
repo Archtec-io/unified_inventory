@@ -47,6 +47,7 @@ ui.register_button("home_gui_set", {
 	tooltip = S("Set home position"),
 	hide_lite=true,
 	action = function(player)
+		local player_name = player:get_player_name()
 		local formspec = [[
 			formspec_version[4]
 			size[8,4]
