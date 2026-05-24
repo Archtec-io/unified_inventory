@@ -1,19 +1,19 @@
-local S = minetest.get_translator("unified_inventory")
+local S = core.get_translator("unified_inventory")
 local NS = function(s) return s end
-local F = minetest.formspec_escape
+local F = core.formspec_escape
 local ui = unified_inventory
 
-minetest.register_privilege("creative", {
+core.register_privilege("creative", {
 	description = S("Can use the creative inventory"),
 	give_to_singleplayer = false,
 })
 
-minetest.register_privilege("ui_full", {
+core.register_privilege("ui_full", {
 	description = S("Forces Unified Inventory to be displayed in Full mode if Lite mode is configured globally"),
 	give_to_singleplayer = false,
 })
 
-local trash = minetest.create_detached_inventory("trash", {
+local trash = core.create_detached_inventory("trash", {
 	--allow_put = function(inv, listname, index, stack, player)
 	--	if ui.is_creative(player:get_player_name()) then
 	--		return stack:get_count()
@@ -24,7 +24,7 @@ local trash = minetest.create_detached_inventory("trash", {
 	on_put = function(inv, listname, index, stack, player)
 		inv:set_stack(listname, index, nil)
 		local player_name = player:get_player_name()
-		minetest.sound_play("trash", {to_player=player_name, gain = 1.0})
+		core.sound_play("trash", {to_player=player_name, gain = 1.0})
 	end,
 })
 trash:set_size("main", 1)
@@ -55,35 +55,35 @@ ui.register_button("home_gui_set", {
 			button[2,1;4,1;yes;Yes, set new home]
 			button_exit[2,2.5;4,1;abort;Abort]
 		]]
-		minetest.show_formspec(player_name, "unified_inventory:set_home", formspec)
+		core.show_formspec(player_name, "unified_inventory:set_home", formspec)
 		--[[local player_name = player:get_player_name()
 		ui.set_home(player, player:get_pos())
 		local home = ui.home_pos[player_name]
 		if home ~= nil then
-			minetest.sound_play("dingdong",
+			core.sound_play("dingdong",
 					{to_player=player_name, gain = 1.0})
-			minetest.chat_send_player(player_name,
-				S("Home position set to: @1", minetest.pos_to_string(home)))
+			core.chat_send_player(player_name,
+				S("Home position set to: @1", core.pos_to_string(home)))
 		end]]--
 	end,
 	condition = function(player)
-		return minetest.check_player_privs(player:get_player_name(), {home=true})
+		return core.check_player_privs(player:get_player_name(), {home=true})
 	end,
 })
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "unified_inventory:set_home" then return end
 	if fields and fields.yes then
 		local player_name = player:get_player_name()
 		ui.set_home(player, player:get_pos())
 		local home = ui.home_pos[player_name]
 		if home ~= nil then
-			minetest.sound_play("dingdong",
+			core.sound_play("dingdong",
 					{to_player=player_name, gain = 1.0})
-			minetest.chat_send_player(player_name,
-				S("Home position set to: @1", minetest.pos_to_string(home)))
+			core.chat_send_player(player_name,
+				S("Home position set to: @1", core.pos_to_string(home)))
 		end
-		minetest.close_formspec(player_name, "unified_inventory:set_home")
+		core.close_formspec(player_name, "unified_inventory:set_home")
 	end
 end)
 
@@ -95,11 +95,11 @@ ui.register_button("home_gui_go", {
 	action = function(player)
 		local player_name = player:get_player_name()
 		if ui.go_home(player) then
-			minetest.sound_play("teleport", {to_player = player_name})
+			core.sound_play("teleport", {to_player = player_name})
 		end
 	end,
 	condition = function(player)
-		return minetest.check_player_privs(player:get_player_name(), {home=true})
+		return core.check_player_privs(player:get_player_name(), {home=true})
 	end,
 })
 
@@ -110,14 +110,14 @@ ui.register_button("misc_set_day", {
 	hide_lite=true,
 	action = function(player)
 		local player_name = player:get_player_name()
-		minetest.sound_play("ui_morning",
+		core.sound_play("ui_morning",
 				{to_player=player_name, gain = 1.0})
-		minetest.set_timeofday((6000 % 24000) / 24000)
-		minetest.chat_send_player(player_name,
+		core.set_timeofday((6000 % 24000) / 24000)
+		core.chat_send_player(player_name,
 			S("Time of day set to 6am"))
 	end,
 	condition = function(player)
-		return minetest.check_player_privs(player:get_player_name(), {settime=true})
+		return core.check_player_privs(player:get_player_name(), {settime=true})
 	end,
 })
 
@@ -128,14 +128,14 @@ ui.register_button("misc_set_night", {
 	hide_lite=true,
 	action = function(player)
 		local player_name = player:get_player_name()
-		minetest.sound_play("ui_owl",
+		core.sound_play("ui_owl",
 				{to_player=player_name, gain = 1.0})
-		minetest.set_timeofday((21000 % 24000) / 24000)
-		minetest.chat_send_player(player_name,
+		core.set_timeofday((21000 % 24000) / 24000)
+		core.chat_send_player(player_name,
 				S("Time of day set to 9pm"))
 	end,
 	condition = function(player)
-		return minetest.check_player_privs(player:get_player_name(), {settime=true})
+		return core.check_player_privs(player:get_player_name(), {settime=true})
 	end,
 })
 
@@ -146,8 +146,8 @@ ui.register_button("clear_inv", {
 	action = function(player)
 		local player_name = player:get_player_name()
 		player:get_inventory():set_list("main", {})
-		minetest.chat_send_player(player_name, S('Inventory cleared!'))
-		minetest.sound_play("trash_all",
+		core.chat_send_player(player_name, S('Inventory cleared!'))
+		core.sound_play("trash_all",
 				{to_player=player_name, gain = 1.0})
 	end,
 	condition = function(player)
@@ -174,7 +174,7 @@ ui.register_page("craft", {
 		}
 		local n=#formspec+1
 
-		if ui.trash_enabled or ui.is_creative(player_name) or minetest.get_player_privs(player_name).give then
+		if ui.trash_enabled or ui.is_creative(player_name) or core.get_player_privs(player_name).give then
 			formspec[n] = string.format("label[%f,%f;%s]", craftx + 6.35, crafty + 2.3, F(S("Trash:")))
 			formspec[n+1] = ui.make_trash_slot(craftx + 6.25, crafty + 2.5)
 			n=n + 2
@@ -271,7 +271,7 @@ ui.register_page("craftguide", {
 		local give_x =            perplayer_formspec.give_btn_x
 
 		local player_name = player:get_player_name()
-		local player_privs = minetest.get_player_privs(player_name)
+		local player_privs = core.get_player_privs(player_name)
 
 		local formspec = {
 			perplayer_formspec.standard_inv_bg,
@@ -284,7 +284,7 @@ ui.register_page("craftguide", {
 		end
 
 		local item_name = selected_stack:get_name()
-		local item_def = minetest.registered_items[item_name]
+		local item_def = core.registered_items[item_name]
 		local item_name_shown
 		if item_def and item_def.description then
 			item_name_shown = S("@1 (@2)", item_def.description, item_name)
@@ -448,10 +448,10 @@ ui.register_page("craftguide", {
 
 local function craftguide_giveme(player, field_name)
 	local player_name = player:get_player_name()
-	local player_privs = minetest.get_player_privs(player_name)
+	local player_privs = core.get_player_privs(player_name)
 	if not player_privs.give and
 			not ui.is_creative(player_name) then
-		minetest.log("action", "[unified_inventory] Denied give action to player " ..
+		core.log("action", "[unified_inventory] Denied give action to player " ..
 			player_name)
 		return
 	end
@@ -493,9 +493,9 @@ local function craftguide_craft(player, formname, fields)
 	local craft = crafts[alternate]
 	if not craft.width then
 		if not craft.output then
-			minetest.log("warning", "[unified_inventory] Craft has no output.")
+			core.log("warning", "[unified_inventory] Craft has no output.")
 		else
-			minetest.log("warning", ("[unified_inventory] Craft for '%s' has no width."):format(craft.output))
+			core.log("warning", ("[unified_inventory] Craft for '%s' has no width."):format(craft.output))
 		end
 		return
 	end
@@ -506,7 +506,7 @@ local function craftguide_craft(player, formname, fields)
 	ui.set_inventory_formspec(player, "craft")
 end
 
-minetest.register_on_player_receive_fields(function(player, formname, fields)
+core.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "" then
 		return
 	end
